@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -22,23 +23,23 @@ namespace xpanda_ebooks
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            bool isFirst = false;
+            bool isFirst = (Request.QueryString["first"] == "1");
 
             if (isFirst)
             {
-                string lastID = "";
-                IList<TweetStructure> allTweets = new List<TweetStructure>();
+                var lastID = "";
+                var allTweets = new List<TweetStructure>();
 
-                for (int i = 0; i < 20; i++)
+                for (var i = 0; i < 20; i++)
                 {
-                    WebClient wb = new WebClient();
+                    var wb = new WebClient();
 
-                    string twitterURL = "https://api.twitter.com/1/statuses/user_timeline.json?screen_name=xpanda_piplupx&count=200&exclude_replies=true";
+                    var twitterURL = "https://api.twitter.com/1/statuses/user_timeline.json?screen_name=" + ConfigurationManager.AppSettings["TwitterUser"] + "&count=200&exclude_replies=true";
                     if (lastID != "")
                         twitterURL += "&max_id=" + lastID;
 
-                    string twitterResponse = wb.DownloadString(twitterURL);
-                    IList<TweetStructure> tweets = JsonConvert.DeserializeObject<IList<TweetStructure>>(twitterResponse);
+                    var twitterResponse = wb.DownloadString(twitterURL);
+                    var tweets = JsonConvert.DeserializeObject<IList<TweetStructure>>(twitterResponse);
                     lastID = tweets[tweets.Count - 1].id_str;
                     foreach (TweetStructure tweet in tweets)
                         if (!allTweets.Contains(tweet))
@@ -47,7 +48,7 @@ namespace xpanda_ebooks
 
                 foreach (TweetStructure tweet in allTweets)
                 {
-                    PastTweetDB.AddTweets(new Dictionary<string, object>()
+                    PastTweetDB.AddTweets(new Dictionary<string, object>
                     {
                         { "tweet", tweet.text },
                         { "id", tweet.id_str },
@@ -57,28 +58,28 @@ namespace xpanda_ebooks
             }
             else
             {
-                string lastID = "";
-                IList<TweetStructure> allTweets = new List<TweetStructure>();
-                string lastSqlID = GetTweets.GetLastID();
+                var lastID = "";
+                var allTweets = new List<TweetStructure>();
+                var lastSqlID = GetTweets.GetLastID();
 
                 for (int i = 0; i < 1; i++)
                 {
-                    WebClient wb = new WebClient();
+                    var wb = new WebClient();
 
-                    string twitterURL = "https://api.twitter.com/1/statuses/user_timeline.json?screen_name=xpanda_piplupx&count=200&exclude_replies=true&since_id=" + lastSqlID;
+                    var twitterURL = "https://api.twitter.com/1/statuses/user_timeline.json?screen_name=" + ConfigurationManager.AppSettings["TwitterUser"] + "&count=200&exclude_replies=true&since_id=" + lastSqlID;
                     if (lastID != "")
                         twitterURL += "&max_id=" + lastID;
 
-                    string twitterResponse = wb.DownloadString(twitterURL);
-                    IList<TweetStructure> tweets = JsonConvert.DeserializeObject<IList<TweetStructure>>(twitterResponse);
+                    var twitterResponse = wb.DownloadString(twitterURL);
+                    var tweets = JsonConvert.DeserializeObject<IList<TweetStructure>>(twitterResponse);
                     if (tweets.Count <= 0)
                         lastID = "";
                     else
                         lastID = tweets[tweets.Count - 1].id_str;
 
-                    foreach (TweetStructure tweet in tweets)
+                    foreach (var tweet in tweets)
                     {
-                        bool derpAsFuck = false;
+                        var derpAsFuck = false;
                         foreach (TweetStructure tweetlv1 in allTweets)
                             if (tweet.id_str == tweetlv1.id_str)
                                 derpAsFuck = true;
@@ -90,7 +91,7 @@ namespace xpanda_ebooks
 
                 foreach (TweetStructure tweet in allTweets)
                 {
-                    PastTweetDB.AddTweets(new Dictionary<string, object>()
+                    PastTweetDB.AddTweets(new Dictionary<string, object>
                     {
                         { "tweet", tweet.text },
                         { "id", tweet.id_str },

@@ -15,7 +15,7 @@ namespace xpanda_ebooks.MySql
 
             foreach (int index in indexs)
             {
-                query.CommandText = string.Format("SELECT * FROM `all_tweets` LIMIT @index ,1");
+                query.CommandText = string.Format("SELECT * FROM `all_tweets` LIMIT @index,1");
                 query.Parameters.Clear();
                 query.Parameters.AddWithValue("@index", index);
 
